@@ -1,0 +1,5 @@
+/reggie_take_out.iml
+/.mvn/
+/target/
+.idea
+**/.gitignore
