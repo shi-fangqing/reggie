@@ -14,11 +14,13 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @Slf4j
@@ -34,6 +36,9 @@ public class UserController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedisTemplate redisTemplate;
 
     /**
      * 发送验证码
@@ -58,7 +63,8 @@ public class UserController {
                 helper.setText("本次验证码为:" + code + "，注意妥善保管，请在五分钟内使用。");
 //                mailSender.send(helper.getMimeMessage());   //发送邮件
                 session.setAttribute("user",user.getId());
-                session.setAttribute("verificationCode",code);
+                //5分钟后过期
+                redisTemplate.opsForValue().set("verificationCode",code,5, TimeUnit.MINUTES);
                 return R.success("发送成功");
             }
         } catch (MessagingException e) {
@@ -77,9 +83,8 @@ public class UserController {
     public R<User> login(@RequestBody Map<String,String> map,HttpSession session){
         String phone = map.get("phone");
         String code = map.get("code");
-        //3. 最后将存入的对象 取出，将id存入session，返回对象
         //1. 先判断 传入的code 和 session中的code 是否相等
-        String verificationCode =session.getAttribute("verificationCode").toString();
+        String verificationCode = (String) redisTemplate.opsForValue().get("verificationCode");
         if(verificationCode==null||!verificationCode.equals(code)){
             throw new CustomException("验证码错误");
         }
@@ -94,6 +99,8 @@ public class UserController {
         user.setPhone(phone);
         userService.save(user);
         session.setAttribute("user",user.getId());
+        //登录成功删除redis中的验证码
+        redisTemplate.opsForValue().getAndDelete("verificationCode");
         return R.success(user);
 
     }

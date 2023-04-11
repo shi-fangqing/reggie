@@ -23,6 +23,12 @@ spring:
           starttls:
             enable: true
             required: true
+  data:
+    redis:
+      host: 192.168.193.101
+      port: 6379
+      password: "0714"
+      database: 0
 
 mybatis-plus:
   configuration:

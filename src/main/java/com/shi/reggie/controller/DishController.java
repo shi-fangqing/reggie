@@ -15,6 +15,7 @@ import com.shi.reggie.service.DishService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,10 @@ public class DishController {
 
     @Resource
     private DishFlavorService dishFlavorService;
+
+    @Resource
+    private RedisTemplate redisTemplate;
+
     /**
      * 分页查询菜品信息
      * 用到多表联查
@@ -77,13 +82,21 @@ public class DishController {
     @GetMapping("/list")
     public R<List<DishDto>> getDishByCategoryId(Dish dish){
         log.info("dish:\t"+dish);
+        List<DishDto> dishDtoList=null;
+        String dishDtoListForRedis="dish_"+dish.getCategoryId()+"_1";
+        //先查redis
+//        dishDtoList = (List<DishDto>) redisTemplate.opsForList().range(dishDtoListForRedis,0,-1);
+        dishDtoList = (List<DishDto>) redisTemplate.opsForValue().get(dishDtoListForRedis);
+        if (dishDtoList!=null&&!dishDtoList.isEmpty()){
+            return R.success(dishDtoList);
+        }
         //通过categoryId或dishName 查询该系列的菜品 注意：只查询启售菜品
         List<Dish> dishList = dishService.list(new LambdaQueryWrapper<Dish>()
                 .eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId())
                 .like(dish.getName() != null, Dish::getName, dish.getName())
                 .eq(Dish::getStatus,1));
 
-        List<DishDto> dishDtoList = dishList.stream().map(dish1 -> {
+        dishDtoList = dishList.stream().map(dish1 -> {
             //查询菜品对应的口味信息
             List<DishFlavor> flavorList = dishFlavorService.list(new LambdaQueryWrapper<DishFlavor>().eq(DishFlavor::getDishId, dish1.getId()));
             DishDto dishDto = new DishDto();
@@ -91,6 +104,8 @@ public class DishController {
             dishDto.setFlavors(flavorList);
             return dishDto;
         }).collect(Collectors.toList());
+//        redisTemplate.opsForList().rightPushAll(dishDtoListForRedis,dishDtoList);
+        redisTemplate.opsForValue().set(dishDtoListForRedis,dishDtoList);
         return R.success(dishDtoList);
     }
     /**

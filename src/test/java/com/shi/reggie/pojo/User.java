@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,15 @@ public class User implements Comparable<User> {
     private Character sex;
     private Integer age;
     private Double salary;
+
+    private LocalDateTime dateTime;
+
+    public User(String name, Character sex, Integer age, Double salary) {
+        this.name = name;
+        this.sex = sex;
+        this.age = age;
+        this.salary = salary;
+    }
 
     @Override
     public int compareTo(User o) {

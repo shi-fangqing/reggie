@@ -2,8 +2,10 @@ package com.shi.reggie;
 
 import com.shi.reggie.common.Constant;
 import com.shi.reggie.pojo.User;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
@@ -183,4 +185,33 @@ class ReggieApplicationTests {
         file.exists();
         System.out.println(file.getAbsolutePath());
     }
+
+    @Resource
+    private RedisTemplate redisTemplate;
+
+    @Test
+    void testRedisString(){
+        List<User> userList = User.getUserList();
+        redisTemplate.opsForValue().set("userList:str",userList);
+        List<User> users = (List<User>) redisTemplate.opsForValue().get("userList:str");
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    void testRedisList(){
+        List<User> userList = User.getUserList();
+        redisTemplate.opsForList().leftPushAll("userList:list",userList);
+        List<User> users = redisTemplate.opsForList().range("userList:list", 0, -1);
+//        System.out.println(users);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    void testRedisLocalDateTime(){
+        User user=new User("jack",'男',34,24000.0,LocalDateTime.now());
+        redisTemplate.opsForValue().set("user",user);
+        User u = (User) redisTemplate.opsForValue().get("user");
+        System.out.println(u);
+    }
+
 }
