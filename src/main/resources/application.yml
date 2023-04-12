@@ -29,7 +29,9 @@ spring:
       port: 6379
       password: "0714"
       database: 0
-
+  cache:
+    redis:
+      time-to-live: 1800000
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true

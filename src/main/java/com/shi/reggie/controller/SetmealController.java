@@ -6,20 +6,20 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.shi.reggie.common.R;
 import com.shi.reggie.dto.SetmealDto;
 import com.shi.reggie.entity.Category;
-import com.shi.reggie.entity.Dish;
 import com.shi.reggie.entity.Setmeal;
 import com.shi.reggie.entity.SetmealDish;
 import com.shi.reggie.service.CategoryService;
-import com.shi.reggie.service.DishService;
 import com.shi.reggie.service.SetmealDishService;
 import com.shi.reggie.service.SetmealService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,17 +35,17 @@ public class SetmealController {
     private CategoryService categoryService;
 
     @Resource
-    private DishService dishService;
-
-    @Resource
     private SetmealDishService setmealDishService;
+
     /**
+     * 供后台管理系统使用
      * 分页查询套餐信息
      * @param page
      * @param pageSize
      * @param name
      * @return
      */
+    @Cacheable(value = "setmeal",key = "'page:'+#page+'_'+#pageSize+'_'+#name")
     @GetMapping("/page")
     public R<Page<SetmealDto>> getPage(@RequestParam Integer page, @RequestParam Integer pageSize, @RequestParam(required = false) String name){
         log.info("套餐分页信息："+"page="+page+"\tpageSize="+pageSize+"\tname="+name);
@@ -72,12 +72,14 @@ public class SetmealController {
     }
 
     /**
-     * 查询套餐的基本信息，不包含内置菜品
+     * 供用户端使用
+     * 通过类型查询套餐的基本信息，不包含内置菜品
      * @param setmeal
      * @return
      */
+    @Cacheable(value = "setmeal",key = "#setmeal.categoryId+'_'+#setmeal.status")
     @GetMapping("/list")
-    public R<List<Setmeal>> listSetmealDtoByCategoryId(Setmeal setmeal){
+    public R<List<Setmeal>> listSetmealByCategoryId(Setmeal setmeal){
         // 查询 setmealList
         List<Setmeal> setmealList = setmealService.list(new LambdaQueryWrapper<Setmeal>()
                 .eq(setmeal.getCategoryId() != null, Setmeal::getCategoryId, setmeal.getCategoryId())
@@ -85,17 +87,28 @@ public class SetmealController {
         return R.success(setmealList);
     }
 
+
+    /**
+     * 供用户端使用
+     * 通过 套餐id 查询该套餐内有哪些菜品
+     * @param id
+     * @return
+     */
+    @Cacheable(value = "setmeal",key = "'userGet:'+#id")
     @GetMapping("/dish/{id}")
     public R<List<SetmealDish>> listSetmealDishBySetmealId(@PathVariable Long id){
         List<SetmealDish> setmealDishList = setmealDishService.list(new LambdaQueryWrapper<SetmealDish>()
                 .eq(id!=null,SetmealDish::getSetmealId, id));
         return R.success(setmealDishList);
     }
+
     /**
+     * 供后台管理系统使用
      * 通过套餐id 获得套餐的信息 用于页面数据的回显
      * @param id
      * @return
      */
+    @Cacheable(value = "setmeal",key = "'empEdit:'+#id")
     @GetMapping("/{id}")
     public R<SetmealDto> getSetmealDto(@PathVariable Long id){
         SetmealDto setmealDto = setmealService.getSetmealWithDishById(id);
@@ -107,6 +120,7 @@ public class SetmealController {
      * @param setmealDto
      * @return
      */
+    @CacheEvict(value = "setmeal",allEntries = true)
     @PutMapping
     public R<String> updateSetmeal(@RequestBody SetmealDto setmealDto){
         log.info("setmealDto:\t"+setmealDto);
@@ -117,6 +131,7 @@ public class SetmealController {
      * 添加套餐
      * @return
      */
+    @CacheEvict(value = "setmeal",allEntries = true)
     @PostMapping
     public R<String> save(@RequestBody SetmealDto setmealDto){
         log.info("SetmealDto:\t"+setmealDto);
@@ -131,6 +146,7 @@ public class SetmealController {
      * @param ids
      * @return
      */
+    @CacheEvict(value = "setmeal",allEntries = true)
     @PostMapping("/status/{status}")
     public R<String> updateSetmealStatus(@PathVariable Integer status,@RequestParam(required = false) List<Long> ids){
         //批量更新status
@@ -148,6 +164,7 @@ public class SetmealController {
      * @param ids
      * @return
      */
+    @CacheEvict(value = "setmeal",allEntries = true)
     @DeleteMapping
     public R<String> remove(@RequestParam List<Long> ids){
         setmealService.removeSetmealWithDish(ids);

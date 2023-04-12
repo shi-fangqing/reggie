@@ -2,6 +2,8 @@ package com.shi.reggie.common;
 
 import lombok.Data;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +12,10 @@ import java.util.Map;
  * @param <T>
  */
 @Data
-public class R <T>{
+public class R <T> implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 4711111668555939017L;
+
     private Integer code;  //编码：1成功，0和其他数字失败
     private String msg;    //错误信息
     private T data;    //返回数据

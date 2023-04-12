@@ -12,6 +12,8 @@ import com.shi.reggie.service.DishService;
 import com.shi.reggie.service.SetmealService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +35,7 @@ public class CategoryController {
      * @param category
      * @return
      */
+    @CacheEvict(value = "category",allEntries = true)
     @PostMapping
     public R<String> save(@RequestBody Category category){
         categoryService.save(category);
@@ -45,6 +48,7 @@ public class CategoryController {
      * @param pageSize
      * @return
      */
+    @Cacheable(value = "category",key = "'page:'+#page+'_'+#pageSize")
     @GetMapping("/page")
     public R<Page<Category>> getPage(@RequestParam Integer page,@RequestParam Integer pageSize){
         //封装分页信息
@@ -62,6 +66,7 @@ public class CategoryController {
      * @param category
      * @return
      */
+    @CacheEvict(value = "category",allEntries = true)
     @PutMapping
     public R<String> update(@RequestBody Category category){
         categoryService.updateById(category);
@@ -73,6 +78,7 @@ public class CategoryController {
      * @param ids
      * @return
      */
+    @CacheEvict(value = "category",allEntries = true)
     @DeleteMapping
     public R<String> remove(@RequestParam Long ids){
         //查询该类别是否有菜品，如果有抛出异常
@@ -96,6 +102,7 @@ public class CategoryController {
      * @param category
       * @return
      */
+    @Cacheable(value = "category",key = "'categoryType:'+#category.type")
     @GetMapping("/list")
     public R<List<Category>> list(Category category){
         //通过类型 查询菜品或套餐的分类情况

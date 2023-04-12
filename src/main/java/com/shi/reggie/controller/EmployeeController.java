@@ -9,6 +9,8 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.security.MD5Encoder;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -68,6 +70,7 @@ public class EmployeeController {
      * @param session
      * @return
      */
+    @CacheEvict(value = "employee",allEntries = true)
     @PostMapping
     public R<String> save(@RequestBody Employee employee,HttpSession session){
         log.info("添加员工");
@@ -82,6 +85,7 @@ public class EmployeeController {
      * @param name
      * @return
      */
+    @Cacheable(value = "employee",key = "'page:'+#page+'_'+#pageSize+'_'+#name")
     @GetMapping("/page")
     public R<Page> getPage(@RequestParam Integer page,@RequestParam Integer pageSize, @RequestParam(required = false) String name){
         //构造分页器
@@ -100,6 +104,7 @@ public class EmployeeController {
      * @param employee
      * @return
      */
+    @CacheEvict(value = "employee",allEntries = true)
     @PutMapping
     public R<String> update(HttpSession session,@RequestBody Employee employee){
         //数据库更新员工信息
@@ -113,6 +118,7 @@ public class EmployeeController {
      * @param id
      * @return
      */
+    @Cacheable(value = "employee",key = "'empId:'+#id")
     @GetMapping("/{id}")
     public R<Employee> getEmployee(@PathVariable Long id){
         Employee employee = employeeService.getById(id);

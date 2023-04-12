@@ -267,7 +267,7 @@
               }).then(() => {
                 editOrderDetail(params).then(res => {
                   if (res.code === 1) {
-                    this.$message.success(status === 3 ? '订单已派送' : '订单已完成')
+                    this.$message.success(status == 3 ? '订单已派送' : '订单已完成')
                     this.init()
                   } else {
                     this.$message.error(res.msg || '操作失败')

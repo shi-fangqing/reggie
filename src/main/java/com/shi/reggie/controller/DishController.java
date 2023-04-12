@@ -15,6 +15,8 @@ import com.shi.reggie.service.DishService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -48,6 +50,7 @@ public class DishController {
      * @param name
      * @return
      */
+    @Cacheable(value = "dish",key = "'page:'+#page+'_'+#pageSize+'_'+#name")
     @GetMapping("/page")
     public R<Page<DishDto>> getPage(@RequestParam Integer page, @RequestParam Integer pageSize, @RequestParam(required = false) String name){
         //根据限制条件，分页查询
@@ -79,24 +82,17 @@ public class DishController {
      * @param dish
      * @return
      */
+    @Cacheable(value = "dish",key = "#dish.categoryId+'_'+#dish.name+'_1'")
     @GetMapping("/list")
     public R<List<DishDto>> getDishByCategoryId(Dish dish){
         log.info("dish:\t"+dish);
-        List<DishDto> dishDtoList=null;
-        String dishDtoListForRedis="dish_"+dish.getCategoryId()+"_1";
-        //先查redis
-//        dishDtoList = (List<DishDto>) redisTemplate.opsForList().range(dishDtoListForRedis,0,-1);
-        dishDtoList = (List<DishDto>) redisTemplate.opsForValue().get(dishDtoListForRedis);
-        if (dishDtoList!=null&&!dishDtoList.isEmpty()){
-            return R.success(dishDtoList);
-        }
         //通过categoryId或dishName 查询该系列的菜品 注意：只查询启售菜品
         List<Dish> dishList = dishService.list(new LambdaQueryWrapper<Dish>()
                 .eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId())
                 .like(dish.getName() != null, Dish::getName, dish.getName())
                 .eq(Dish::getStatus,1));
 
-        dishDtoList = dishList.stream().map(dish1 -> {
+        List<DishDto> dishDtoList = dishList.stream().map(dish1 -> {
             //查询菜品对应的口味信息
             List<DishFlavor> flavorList = dishFlavorService.list(new LambdaQueryWrapper<DishFlavor>().eq(DishFlavor::getDishId, dish1.getId()));
             DishDto dishDto = new DishDto();
@@ -104,8 +100,6 @@ public class DishController {
             dishDto.setFlavors(flavorList);
             return dishDto;
         }).collect(Collectors.toList());
-//        redisTemplate.opsForList().rightPushAll(dishDtoListForRedis,dishDtoList);
-        redisTemplate.opsForValue().set(dishDtoListForRedis,dishDtoList);
         return R.success(dishDtoList);
     }
     /**
@@ -113,6 +107,7 @@ public class DishController {
      * @param dishDto
      * @return
      */
+    @CacheEvict(value = "dish",allEntries = true)
     @PostMapping
     public R<String> saveDish(@RequestBody DishDto dishDto){
         log.info("dishDto:"+dishDto);
@@ -125,6 +120,7 @@ public class DishController {
      * @param dishDto
      * @return
      */
+    @CacheEvict(value = "dish",allEntries = true)
     @PutMapping
     public R<String> updateDish(@RequestBody DishDto dishDto){
         dishService.updateDishWithFlavor(dishDto);
@@ -135,6 +131,7 @@ public class DishController {
      * @param id
      * @return
      */
+    @Cacheable(value = "dish",key = "'dishId:'+#id")
     @GetMapping("/{id}")
     public R<DishDto> getDishById(@PathVariable Long id){
         log.info("菜品id="+id);
@@ -148,6 +145,7 @@ public class DishController {
      * @param ids
      * @return
      */
+    @CacheEvict(value = "dish",allEntries = true)
     @PostMapping("/status/{status}")
     public R<String> updateDishStatus(@PathVariable Integer status,@RequestParam List<Long> ids){
         //批量修改状态
@@ -163,6 +161,7 @@ public class DishController {
      * @param ids
      * @return
      */
+    @CacheEvict(value = "dish",allEntries = true)
     @DeleteMapping
     public R<String> remove(@RequestParam List<Long> ids){
         dishService.removeDishWithFlavor(ids);
