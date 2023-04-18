@@ -3,12 +3,11 @@ package com.shi.reggie.interceptor;
 import com.alibaba.fastjson.JSON;
 import com.shi.reggie.common.BaseContext;
 import com.shi.reggie.common.R;
-import com.shi.reggie.entity.Employee;
-import com.shi.reggie.entity.User;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Component
 public class LoginInterceptor implements HandlerInterceptor {

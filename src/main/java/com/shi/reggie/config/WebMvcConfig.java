@@ -5,7 +5,6 @@ import ch.qos.logback.classic.pattern.MessageConverter;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.shi.reggie.common.JacksonObjectMapper;
 import com.shi.reggie.interceptor.LoginInterceptor;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -14,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @Slf4j

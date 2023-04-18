@@ -3,7 +3,6 @@ package com.shi.reggie.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 import com.shi.reggie.common.R;
 import com.shi.reggie.dto.DishDto;
 import com.shi.reggie.entity.Category;
@@ -12,7 +11,6 @@ import com.shi.reggie.entity.DishFlavor;
 import com.shi.reggie.service.CategoryService;
 import com.shi.reggie.service.DishFlavorService;
 import com.shi.reggie.service.DishService;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,7 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 

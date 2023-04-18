@@ -8,10 +8,10 @@ import com.shi.reggie.entity.*;
 import com.shi.reggie.exception.CustomException;
 import com.shi.reggie.mapper.OrdersMapper;
 import com.shi.reggie.service.*;
-import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;

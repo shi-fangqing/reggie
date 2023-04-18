@@ -1,0 +1,70 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: reggie_take_out
+  #qq邮箱配置
+  mail:
+    #qq邮箱配置
+    host: smtp.qq.com
+    #发件人qq邮箱地址
+    username: 205564122@qq.com
+    #qq邮箱授权码
+    password: vvbcshgubkdgcajj
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+  #redis配置
+  redis:
+    host: 192.168.193.104
+    port: 6379
+    database: 0
+    password: 123456
+
+  #配置读写分离
+  shardingsphere:
+    datasource:
+      names: master,slave
+      #主数据源
+      master:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://192.168.193.104:3306/reggie?useSSL=false&characterEncoding=utf-8&createDatabaseIfNotExist=true&serverTimezone=GMT%2B8
+        username: root
+        password: 123456
+      #从数据源
+      slave:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://192.168.193.104:3307/reggie?useSSL=false&characterEncoding=utf-8&createDatabaseIfNotExist=true&serverTimezone=GMT%2B8
+        username: root
+        password: 123456
+    masterslave:
+      name: dataSource
+      load-balance-algorithm-type: round_robin #轮询
+      master-data-source-name: master
+      slave-data-source-names: slave
+    props:
+      sql:
+        show: true #开启sql显示，默认为false
+
+  #允许bean的覆盖
+  main:
+    allow-bean-definition-overriding: true
+
+
+#MP配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: assign_id
+
+

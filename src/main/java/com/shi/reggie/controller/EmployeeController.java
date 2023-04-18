@@ -5,16 +5,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.shi.reggie.common.R;
 import com.shi.reggie.entity.Employee;
 import com.shi.reggie.service.EmployeeService;
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 
 @Slf4j

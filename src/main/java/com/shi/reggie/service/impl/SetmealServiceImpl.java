@@ -10,11 +10,11 @@ import com.shi.reggie.mapper.SetmealMapper;
 import com.shi.reggie.service.CategoryService;
 import com.shi.reggie.service.SetmealDishService;
 import com.shi.reggie.service.SetmealService;
-import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,7 +49,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         setmealDishService.remove(new LambdaQueryWrapper<SetmealDish>()
                 .in(SetmealDish::getSetmealId,ids));
         //2. 删除套餐
-        this.removeBatchByIds(ids);
+        this.removeByIds(ids);
     }
 
     @Override

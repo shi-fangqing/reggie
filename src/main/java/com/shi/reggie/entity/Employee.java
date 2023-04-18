@@ -1,9 +1,6 @@
 package com.shi.reggie.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serial;
@@ -17,7 +14,6 @@ public class Employee implements Serializable {
     @Serial
     private static final long serialVersionUID = -5008641676244066328L;
 
-    @TableId
     private Long id;
 
     private String name;

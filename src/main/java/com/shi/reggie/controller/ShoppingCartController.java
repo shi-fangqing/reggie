@@ -6,10 +6,10 @@ import com.shi.reggie.common.BaseContext;
 import com.shi.reggie.common.R;
 import com.shi.reggie.entity.ShoppingCart;
 import com.shi.reggie.service.ShoppingCartService;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @RestController

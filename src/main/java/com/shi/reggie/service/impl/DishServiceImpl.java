@@ -10,14 +10,12 @@ import com.shi.reggie.mapper.DishMapper;
 import com.shi.reggie.service.CategoryService;
 import com.shi.reggie.service.DishFlavorService;
 import com.shi.reggie.service.DishService;
-import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
+import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,6 +87,6 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         dishFlavorService.remove(new LambdaQueryWrapper<DishFlavor>()
                 .in(DishFlavor::getDishId,ids));
         //2. 删除菜品
-        this.removeBatchByIds(ids);
+        this.removeByIds(ids);
     }
 }
